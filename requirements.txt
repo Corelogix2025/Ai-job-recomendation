@@ -1,0 +1,8 @@
+flask
+spacy
+pdfminer.six
+python-docx
+sentence-transformers
+scikit-learn
+numpy
+pymysql
