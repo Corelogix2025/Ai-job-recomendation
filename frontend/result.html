@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Resume Analysis Result</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="result-layout">
+
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <h2>Overall Resume Score</h2>
+
+            <!-- Battery Score -->
+            <div class="battery">
+                <div class="battery-body">
+                    <div class="battery-fill" id="batteryFill"></div>
+                </div>
+                <div class="battery-cap"></div>
+                <div class="battery-text" id="batteryText">0%</div>
+            </div>
+
+            <!-- Suggestions -->
+            <div class="overall-suggestions">
+                <h3>Improvement Suggestions</h3>
+                <ul id="suggestionsList"></ul>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <h2>Top Job Matches</h2>
+            <div id="jobsContainer"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const data = JSON.parse(localStorage.getItem("resultData"));
+
+        if (!data) {
+            alert("No result data found. Please upload resume again.");
+            window.location.href = "index.html";
+        }
+
+        // -----------------------------
+        // Resume Score (Battery)
+        // -----------------------------
+        const score = data.resume_score;
+        document.getElementById("batteryFill").style.width = score + "%";
+        document.getElementById("batteryText").innerText = score + "%";
+
+        // -----------------------------
+        // Suggestions
+        // -----------------------------
+        const suggestionsList = document.getElementById("suggestionsList");
+        data.suggestions.forEach(tip => {
+            const li = document.createElement("li");
+            li.innerText = tip;
+            suggestionsList.appendChild(li);
+        });
+
+        // -----------------------------
+        // Job Cards
+        // -----------------------------
+        const jobsContainer = document.getElementById("jobsContainer");
+
+        data.jobs.forEach((job, index) => {
+            const card = document.createElement("div");
+            card.className = "job-card";
+
+            card.innerHTML = `
+        <div class="job-title">${index + 1}. ${job.title}</div>
+        <div class="match">Job Match: ${job.job_match}%</div>
+        <div class="explain">${job.explanation}</div>
+        <a class="apply-btn" href="${job.link}" target="_blank">
+            Apply Now
+        </a>
+    `;
+
+            jobsContainer.appendChild(card);
+        });
+    </script>
+
+</body>
+
+</html>

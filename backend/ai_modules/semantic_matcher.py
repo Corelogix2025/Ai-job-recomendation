@@ -3,22 +3,45 @@ from sklearn.metrics.pairwise import cosine_similarity
 from db.db_config import get_connection
 import pymysql
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# -------------------------------------------------
+# Lazy-load model (IMPORTANT for Render / deployment)
+# -------------------------------------------------
+_model = None
 
 
+def get_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _model
+
+
+# ---------------------------------
+# Fetch jobs from database
+# ---------------------------------
 def fetch_jobs():
     conn = get_connection()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM jobs")
+
+    cursor.execute("SELECT title, skills, apply_link FROM jobs")
     jobs = cursor.fetchall()
+
+    cursor.close()
     conn.close()
     return jobs
 
 
-def find_best_jobs(resume_text):
-    resume_emb = model.encode(resume_text)
-    jobs = fetch_jobs()
+# ---------------------------------
+# Find best matching jobs
+# ---------------------------------
+def find_best_jobs(resume_text: str):
+    if not resume_text:
+        return []
 
+    model = get_model()
+    resume_emb = model.encode(resume_text)
+
+    jobs = fetch_jobs()
     results = []
 
     for job in jobs:
@@ -29,11 +52,9 @@ def find_best_jobs(resume_text):
             [resume_emb], [job_emb]
         )[0][0]
 
-        job_match = round(similarity * 100, 2)
-
         results.append({
             "title": job["title"],
-            "job_match": job_match,
+            "job_match": round(similarity * 100, 2),
             "link": job["apply_link"]
         })
 

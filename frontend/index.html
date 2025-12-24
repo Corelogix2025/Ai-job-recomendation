@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI Job Recommender</title>
+
+    <!-- Static CSS (NO JINJA) -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>AI Job Recommender</h1>
+
+        <form id="resumeForm">
+            <input type="file" id="resume" name="resume" accept=".pdf" required>
+            <button type="submit">Find Best Jobs</button>
+        </form>
+
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById("resumeForm");
+        const statusText = document.getElementById("status");
+
+        form.addEventListener("submit", async(e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("resume");
+            if (!fileInput.files.length) {
+                alert("Please upload a resume PDF");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("resume", fileInput.files[0]);
+
+            statusText.innerText = "Analyzing resume, please wait...";
+
+            try {
+                const response = await fetch(
+                    "https://YOUR-BACKEND.onrender.com/analyze", {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                const data = await response.json();
+
+                // Save result temporarily (simple approach)
+                localStorage.setItem("resultData", JSON.stringify(data));
+
+                // Redirect to result page
+                window.location.href = "result.html";
+
+            } catch (error) {
+                statusText.innerText = "Error connecting to server.";
+                console.error(error);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

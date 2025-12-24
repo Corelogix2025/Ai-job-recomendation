@@ -2,7 +2,7 @@
    GLOBAL RESET & BASE
 ================================================== */
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
 * {
     margin: 0;
     padding: 0;
@@ -66,7 +66,7 @@ button {
     border-radius: 14px;
     border: none;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     color: #020617;
     background: linear-gradient(135deg, #22d3ee, #a5f3fc);
     cursor: pointer;
@@ -81,7 +81,7 @@ button:hover {
 
 
 /* ==================================================
-   RESULT LAYOUT
+   RESULT PAGE LAYOUT
 ================================================== */
 
 .result-layout {
@@ -89,11 +89,12 @@ button:hover {
     gap: 30px;
     max-width: 1200px;
     width: 100%;
+    align-items: flex-start;
 }
 
 
 /* ==================================================
-   LEFT PANEL – SCORE + SUGGESTIONS
+   LEFT PANEL – SCORE & SUGGESTIONS
 ================================================== */
 
 .left-panel {
@@ -109,17 +110,17 @@ button:hover {
 }
 
 .left-panel h2 {
-    font-size: 16px;
+    font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     margin-bottom: 20px;
-    color: #a5f3fc;
+    color: #67e8f9;
 }
 
 
-/* =======================
-   SPEEDOMETER SCORE
-======================= */
+/* ==================================================
+   BATTERY SCORE
+================================================== */
 
 .battery {
     position: relative;
@@ -135,42 +136,44 @@ button:hover {
     border: 3px solid #22d3ee;
     background: #020617;
     overflow: hidden;
-    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.7);
+    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.8);
 }
 
 .battery-fill {
     height: 100%;
-    width: 0;
-    background: linear-gradient( 90deg, #ef4444, #facc15, #22c55e);
-    transition: width 0.8s ease-in-out;
+    width: 0%;
+    background: linear-gradient(90deg, #ef4444, #facc15, #22c55e);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-
-/* SCORE NUMBER */
-
-.overall-score span {
+.battery-cap {
+    width: 14px;
+    height: 36px;
+    background: #22d3ee;
     position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 44px;
+    right: -18px;
+    top: 27px;
+    border-radius: 4px;
+}
+
+.battery-text {
+    margin-top: 10px;
+    font-size: 30px;
     font-weight: 900;
     color: #22d3ee;
-    z-index: 3;
-    letter-spacing: 1px;
 }
 
 
-/* =======================
+/* ==================================================
    SUGGESTIONS
-======================= */
+================================================== */
 
 .overall-suggestions {
     width: 100%;
 }
 
 .overall-suggestions h3 {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -180,7 +183,6 @@ button:hover {
 
 .overall-suggestions ul {
     list-style: none;
-    padding: 0;
 }
 
 .overall-suggestions li {
@@ -197,7 +199,7 @@ button:hover {
 
 
 /* ==================================================
-   RIGHT PANEL – JOB CARDS
+   RIGHT PANEL – JOB MATCHES
 ================================================== */
 
 .right-panel {
@@ -212,9 +214,9 @@ button:hover {
 }
 
 
-/* =======================
+/* ==================================================
    JOB CARD
-======================= */
+================================================== */
 
 .job-card {
     background: #f8fafc;
@@ -245,7 +247,7 @@ button:hover {
 
 .match {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     color: #0f766e;
     margin-bottom: 6px;
 }
@@ -257,14 +259,14 @@ button:hover {
 }
 
 
-/* =======================
+/* ==================================================
    APPLY BUTTON
-======================= */
+================================================== */
 
 .apply-btn {
     display: inline-block;
     margin-top: 14px;
-    padding: 9px 22px;
+    padding: 9px 24px;
     border-radius: 30px;
     background: linear-gradient(135deg, #22d3ee, #38bdf8);
     color: #020617;
@@ -286,6 +288,9 @@ button:hover {
 ================================================== */
 
 @media (max-width: 900px) {
+    body {
+        align-items: flex-start;
+    }
     .result-layout {
         flex-direction: column;
     }
