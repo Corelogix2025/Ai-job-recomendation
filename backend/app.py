@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 import uuid
@@ -10,7 +10,7 @@ from ai_modules.semantic_matcher import find_best_jobs
 from ai_modules.explanation_engine import analyze_resume, generate_explanation
 
 # Firebase DB
-from db.db_config import get_jobs   # 🔥 Firebase integration
+from db.db_config import get_jobs
 
 app = Flask(__name__)
 CORS(app)
@@ -18,17 +18,21 @@ CORS(app)
 # ---------------------------------
 # Upload folder (temporary storage)
 # ---------------------------------
-UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 # ---------------------------------
-# Health check (Render requirement)
+# INDEX PAGE (FIXED ✅)
 # ---------------------------------
 @app.route("/", methods=["GET"])
-def health():
-    return jsonify({"status": "Backend running successfully"})
+def index():
+    return render_template("index.html")
 
+@app.route("/result", methods=["GET"])
+def result():
+    return render_template("result.html")
 
 # ---------------------------------
 # Resume upload & analysis API
@@ -44,7 +48,6 @@ def analyze_resume_api():
     if file.filename == "":
         return jsonify({"error": "Empty filename"}), 400
 
-    # Unique filename
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
@@ -70,24 +73,28 @@ def analyze_resume_api():
         for job in jobs:
             job["explanation"] = generate_explanation(job["job_match"])
 
-        # -----------------------------
-        # JSON response
-        # -----------------------------
         return jsonify({
-            "resume_score": overall_score,
-            "suggestions": overall_suggestions,
-            "skills": extracted_skills,
-            "jobs": jobs[:5]
-        })
+    "resume_score": float(overall_score),  # 🔥 FIX
+    "suggestions": overall_suggestions,
+    "skills": extracted_skills,
+    "jobs": jobs[:5]
+})
+
 
     finally:
-        # -----------------------------
-        # Cleanup (important for Render)
-        # -----------------------------
+        # Cleanup uploaded file
         try:
             os.remove(file_path)
         except Exception:
             pass
+
+
+# ---------------------------------
+# Health check (optional)
+# ---------------------------------
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "Backend running successfully"})
 
 
 # ---------------------------------

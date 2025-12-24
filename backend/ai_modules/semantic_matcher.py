@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # -------------------------------------------------
-# Lazy-load model (IMPORTANT for Render)
+# Lazy-load model
 # -------------------------------------------------
 _model = None
 
@@ -15,12 +15,13 @@ def get_model():
 
 
 # ---------------------------------
-# Find best matching jobs (Firebase)
+# Find best matching jobs
 # ---------------------------------
-def find_best_jobs(resume_text: str, jobs: dict):
+def find_best_jobs(resume_text: str, jobs):
     """
-    resume_text : extracted resume text
-    jobs        : jobs fetched from Firebase (dict)
+    jobs can be:
+    - list (Firebase array)
+    - dict (Firebase object)
     """
 
     if not resume_text or not jobs:
@@ -31,10 +32,19 @@ def find_best_jobs(resume_text: str, jobs: dict):
 
     results = []
 
-    # Firebase returns dict -> iterate values
-    for _, job in jobs.items():
+    # ✅ SAFELY HANDLE BOTH TYPES
+    if isinstance(jobs, dict):
+        job_iterable = jobs.values()
+    elif isinstance(jobs, list):
+        job_iterable = jobs
+    else:
+        return []
 
-        job_text = f"{job['title']} {job['skills']}"
+    for job in job_iterable:
+        if not job:
+            continue
+
+        job_text = f"{job.get('title', '')} {job.get('skills', '')}"
         job_emb = model.encode(job_text)
 
         similarity = cosine_similarity(
@@ -42,9 +52,8 @@ def find_best_jobs(resume_text: str, jobs: dict):
         )[0][0]
 
         results.append({
-            "title": job["title"],
-            "job_match": round(similarity * 100, 2),
-            "link": job["apply_link"]
-        })
-
+    "title": job.get("title", "Unknown Role"),
+    "job_match": float(round(similarity * 100, 2)),  # 🔥 FIX
+    "link": job.get("apply_link", "#")
+})
     return sorted(results, key=lambda x: x["job_match"], reverse=True)
