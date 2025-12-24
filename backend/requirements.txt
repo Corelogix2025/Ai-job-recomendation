@@ -1,18 +1,10 @@
 flask
 flask-cors
-
-# NLP & Resume Processing
 spacy
 pdfminer.six
 python-docx
-
-# AI & Matching
 sentence-transformers
 scikit-learn
 numpy
-
-# Firebase (Database)
 firebase-admin
-
-# Production server (IMPORTANT for Render)
 gunicorn
