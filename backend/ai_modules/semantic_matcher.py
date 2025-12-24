@@ -1,10 +1,8 @@
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from db.db_config import get_connection
-import pymysql
 
 # -------------------------------------------------
-# Lazy-load model (IMPORTANT for Render / deployment)
+# Lazy-load model (IMPORTANT for Render)
 # -------------------------------------------------
 _model = None
 
@@ -17,34 +15,25 @@ def get_model():
 
 
 # ---------------------------------
-# Fetch jobs from database
+# Find best matching jobs (Firebase)
 # ---------------------------------
-def fetch_jobs():
-    conn = get_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+def find_best_jobs(resume_text: str, jobs: dict):
+    """
+    resume_text : extracted resume text
+    jobs        : jobs fetched from Firebase (dict)
+    """
 
-    cursor.execute("SELECT title, skills, apply_link FROM jobs")
-    jobs = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    return jobs
-
-
-# ---------------------------------
-# Find best matching jobs
-# ---------------------------------
-def find_best_jobs(resume_text: str):
-    if not resume_text:
+    if not resume_text or not jobs:
         return []
 
     model = get_model()
     resume_emb = model.encode(resume_text)
 
-    jobs = fetch_jobs()
     results = []
 
-    for job in jobs:
+    # Firebase returns dict -> iterate values
+    for _, job in jobs.items():
+
         job_text = f"{job['title']} {job['skills']}"
         job_emb = model.encode(job_text)
 

@@ -1,7 +1,7 @@
 import spacy
 
 # -------------------------------------------------
-# Lazy load spaCy model (VERY IMPORTANT for deploy)
+# Lazy load spaCy model (IMPORTANT for deployment)
 # -------------------------------------------------
 _nlp = None
 
@@ -14,13 +14,32 @@ def get_nlp():
 
 
 # ---------------------------------
-# Skill vocabulary
+# Skill vocabulary (expanded & modern)
 # ---------------------------------
 SKILLS = [
-    "python", "java", "sql", "machine learning", "deep learning",
-    "html", "css", "javascript", "react", "flask", "django",
-    "aws", "docker", "linux", "selenium", "testing",
-    "excel", "data analysis", "cloud computing"
+    # Programming Languages
+    "python", "java", "c", "c++", "c#", "javascript", "typescript",
+
+    # Web Technologies
+    "html", "css", "react", "angular", "vue",
+    "flask", "django", "node", "express",
+
+    # Data & AI
+    "machine learning", "deep learning", "data analysis",
+    "data science", "artificial intelligence", "nlp",
+
+    # Databases
+    "sql", "mysql", "postgresql", "mongodb", "firebase",
+
+    # Cloud & DevOps
+    "aws", "azure", "gcp", "cloud computing",
+    "docker", "kubernetes", "ci/cd",
+
+    # Testing & QA
+    "selenium", "automation testing", "manual testing",
+
+    # Tools & Others
+    "linux", "git", "github", "excel", "power bi"
 ]
 
 
@@ -28,18 +47,24 @@ SKILLS = [
 # Extract skills from resume text
 # ---------------------------------
 def extract_skills(text: str):
+    """
+    Extract predefined technical skills from resume text.
+    Returns a list of matched skills.
+    """
+
     if not text:
         return []
 
     text = text.lower()
 
-    # Ensure spaCy model is loaded (for future expansion)
+    # Load spaCy (future-ready, minimal overhead now)
     get_nlp()
 
     found_skills = set()
 
     for skill in SKILLS:
-        if skill in text:
+        # Phrase-safe matching
+        if f" {skill} " in f" {text} ":
             found_skills.add(skill)
 
-    return list(found_skills)
+    return sorted(found_skills)

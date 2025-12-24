@@ -1,18 +1,14 @@
-import os
-import pymysql
+import firebase_admin
+from firebase_admin import credentials, db
+
+cred = credentials.Certificate("firebase_key.json")
+
+firebase_admin.initialize_app(cred, {
+    "databaseURL": "https://ai-job-ba0f5-default-rtdb.firebaseio.com/"
+})
 
 
-def get_connection():
-    """
-    Create and return a MySQL database connection
-    using environment variables (cloud-safe).
-    """
 
-    return pymysql.connect(
-        host=os.getenv("DB_HOST"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASS"),
-        database=os.getenv("DB_NAME"),
-        cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True
-    )
+def get_jobs():
+    ref = db.reference("jobs")
+    return ref.get()

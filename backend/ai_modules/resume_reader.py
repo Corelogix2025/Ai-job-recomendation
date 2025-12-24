@@ -4,17 +4,25 @@ from pdfminer.high_level import extract_text
 
 def read_resume(file_path: str) -> str:
     """
-    Reads and extracts text from a PDF resume file.
-    Works correctly in local + deployed environments.
+    Extracts text from a PDF resume.
+    Safe for local development and cloud deployment (Render).
     """
 
-    if not file_path or not os.path.exists(file_path):
+    # Basic validation
+    if not file_path or not os.path.isfile(file_path):
         return ""
 
     try:
         text = extract_text(file_path)
-        return text.strip() if text else ""
+
+        if not text:
+            return ""
+
+        # Normalize whitespace
+        cleaned_text = " ".join(text.split())
+        return cleaned_text
+
     except Exception as e:
-        # Optional: log error in production
-        print(f"Resume parsing error: {e}")
+        # Render-friendly logging (no crash)
+        print(f"[ResumeReader] Failed to parse PDF: {e}")
         return ""

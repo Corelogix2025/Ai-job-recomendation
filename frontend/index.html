@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <title>AI Job Recommender</title>
 
-    <!-- Static CSS (NO JINJA) -->
+    <!-- Static CSS -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 
 <body>
@@ -15,7 +19,7 @@
         <h1>AI Job Recommender</h1>
 
         <form id="resumeForm">
-            <input type="file" id="resume" name="resume" accept=".pdf" required>
+            <input type="file" id="resume" accept=".pdf" required>
             <button type="submit">Find Best Jobs</button>
         </form>
 
@@ -23,6 +27,24 @@
     </div>
 
     <script>
+        /* 🔥 FIREBASE CONFIG (YOUR PROJECT) */
+        const firebaseConfig = {
+            apiKey: "AIzaSyApIFWYjxtL-taAem3ddARVr3kwoe-Bedg",
+            authDomain: "ai-job-ba0f5.firebaseapp.com",
+            databaseURL: "https://ai-job-ba0f5-default-rtdb.firebaseio.com",
+            projectId: "ai-job-ba0f5",
+            storageBucket: "ai-job-ba0f5.firebasestorage.app",
+            messagingSenderId: "816955655434",
+            appId: "1:816955655434:web:5719896ea02674290366f3",
+            measurementId: "G-ZV2W9JPVLB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get database reference
+        const database = firebase.database();
+
         const form = document.getElementById("resumeForm");
         const statusText = document.getElementById("status");
 
@@ -35,14 +57,34 @@
                 return;
             }
 
-            const formData = new FormData();
-            formData.append("resume", fileInput.files[0]);
+            statusText.innerText = "📡 Fetching jobs from Firebase & analyzing resume...";
 
-            statusText.innerText = "Analyzing resume, please wait...";
+            // OPTIONAL: Fetch jobs from Firebase (frontend-ready)
+            database.ref("jobs").once("value")
+                .then(snapshot => {
+                    const jobs = snapshot.val();
+
+                    // Store jobs locally (can be used later)
+                    localStorage.setItem("jobs", JSON.stringify(jobs));
+
+                    statusText.innerText = "✅ Jobs loaded from Firebase";
+
+                    // 👉 Resume processing still goes to backend
+                    uploadResume(fileInput.files[0]);
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusText.innerText = "❌ Failed to fetch jobs from Firebase";
+                });
+        });
+
+        async function uploadResume(file) {
+            const formData = new FormData();
+            formData.append("resume", file);
 
             try {
                 const response = await fetch(
-                    "https://YOUR-BACKEND.onrender.com/analyze", {
+                    "https://ai-job-recomendation.onrender.com/analyze", {
                         method: "POST",
                         body: formData
                     }
@@ -50,17 +92,14 @@
 
                 const data = await response.json();
 
-                // Save result temporarily (simple approach)
                 localStorage.setItem("resultData", JSON.stringify(data));
-
-                // Redirect to result page
                 window.location.href = "result.html";
 
             } catch (error) {
-                statusText.innerText = "Error connecting to server.";
                 console.error(error);
+                statusText.innerText = "❌ Server error";
             }
-        });
+        }
     </script>
 
 </body>
